@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 # preToolUse hook - enforces guardrails before any tool executes
+#
+# This is one of four GitHub Copilot coding agent hooks:
+# - sessionStart: runs once when agent session begins
+# - preToolUse: runs before each tool call (can deny)
+# - postToolUse: runs after each tool call (audit/logging)
+# - sessionEnd: runs when session completes
+#
+# Full docs: https://docs.github.com/en/copilot/customizing-copilot/using-copilot-coding-agent/customizing-the-coding-agent-with-hooks
 
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.toolName')
