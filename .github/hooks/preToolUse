@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# preToolUse hook - enforces guardrails before any tool executes
+
+INPUT=$(cat)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.toolName')
+TOOL_ARGS=$(echo "$INPUT" | jq -r '.toolArgs')
+
+# Helper to deny a tool call
+deny() {
+  jq -n --arg reason "$1" '{
+    "permissionDecision": "deny",
+    "permissionDecisionReason": $reason
+  }'
+  exit 0
+}
+
+# Rule 1: Only allow file edits in src/
+if [[ "$TOOL_NAME" == "edit" ]] || [[ "$TOOL_NAME" == "create" ]]; then
+  FILE_PATH=$(echo "$TOOL_ARGS" | jq -r '.path // .filePath // empty')
+  
+  if [[ ! "$FILE_PATH" =~ ^src/ ]]; then
+    deny "File edits restricted to src/ directory. Attempted: $FILE_PATH"
+  fi
+  
+  # Rule 3: Block hardcoded secrets
+  CONTENT=$(echo "$TOOL_ARGS" | jq -r '.content // .newContent // empty')
+  if echo "$CONTENT" | grep -qiE '(api[_-]?key|password|secret|token)\s*[:=]\s*["\x27][a-zA-Z0-9_-]{10,}'; then
+    deny "Hardcoded secret detected. Use environment variables."
+  fi
+fi
+
+# Rule 2: Block dependency installation
+if [[ "$TOOL_NAME" == "bash" ]]; then
+  COMMAND=$(echo "$TOOL_ARGS" | jq -r '.command // empty')
+  
+  if echo "$COMMAND" | grep -qE '(pip|npm|yarn) install'; then
+    deny "Dependency installation not permitted. Blocked: $COMMAND"
+  fi
+fi
+
+# Allow if no rules triggered
+jq -n '{"permissionDecision": "allow"}'

@@ -1,0 +1,6 @@
+# Example config file in root directory
+# Try asking Copilot to edit this - the hook should block it
+
+app:
+  name: copilot-hooks-demo
+  version: 1.0.0

@@ -1,0 +1,7 @@
+[
+  {"type": "user", "first_name": "Alice", "last_name": "Chen", "email": "alice@example.com", "active": true},
+  {"type": "user", "first_name": "Bob", "last_name": "Smith", "email": "", "active": true},
+  {"type": "user", "first_name": "Carol", "last_name": "Jones", "email": "carol@example.com", "active": false},
+  {"type": "admin", "first_name": "Dave", "last_name": "Wilson", "email": "dave@example.com"},
+  {"type": "user", "first_name": "Eve", "last_name": "Brown", "email": null, "active": true}
+]
